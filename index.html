@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SVG Drawing Pad with Bin</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+    .toolbar {
+      margin: 10px;
+    }
+    button {
+      padding: 8px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background: crimson;
+      color: white;
+      border-radius: 4px;
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+    svg {
+      background: white;
+      border: 2px solid #333;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+<div class="toolbar">
+  <button id="clearBtn">🗑 Clear (Bin)</button>
+</div>
+<svg id="svgBoard" width="900" height="500"></svg>
+<script>
+  const svg = document.getElementById("svgBoard");
+  const clearBtn = document.getElementById("clearBtn");
+  let isDrawing = false;
+  let line = null;
+  let pointsList = [];
+  function getMousePos(evt) {
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+  svg.addEventListener("mousedown", (e) => {
+    isDrawing = true;
+    pointsList = [];
+    const pos = getMousePos(e);
+    pointsList.push(`${pos.x},${pos.y}`);
+    line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    line.setAttribute("stroke", "black");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("fill", "none");
+    svg.appendChild(line);
+  });
+  svg.addEventListener("mousemove", (e) => {
+    if (!isDrawing) return;
+    const pos = getMousePos(e);
+    pointsList.push(`${pos.x},${pos.y}`);
+    line.setAttribute("points", pointsList.join(" "));
+  });
+  function stopDraw() {
+    isDrawing = false;
+    line = null;
+  }
+  svg.addEventListener("mouseup", stopDraw);
+  svg.addEventListener("mouseleave", stopDraw);
+  clearBtn.addEventListener("click", () => {
+    svg.innerHTML = "";
+  });
+</script>
+</body>
+</html>
+
